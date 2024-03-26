@@ -7,7 +7,7 @@ Transit in Ireland
 
 ````
 
-CREATE TABLE `ssb`.`Meetups`.`irelandvehicleCluster` (
+CREATE TABLE `ssb`.`Meetups`.`irelandvehicle` (
   `recordid` VARCHAR(2147483647),
   `route_id` VARCHAR(2147483647),
   `directionid` VARCHAR(2147483647),
@@ -35,8 +35,9 @@ CREATE TABLE `ssb`.`Meetups`.`irelandvehicleCluster` (
   'connector' = 'kafka',
   'properties.transaction.timeout.ms' = '900000',
   'topic' = 'irelandvehicle',
-  'properties.group.id' = 'flinksbbconsumer1'
+  'properties.group.id' = 'irelandconsumersbb1'
 )
+
 ````
 
 ````
