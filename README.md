@@ -40,4 +40,15 @@ CREATE TABLE `ssb`.`Meetups`.`irelandvehicle` (
 
 ````
 
-````
+
+### RESOURCES
+
+https://transitdata.io/city/28
+
+https://github.com/eskerda/pybikes
+
+https://github.com/TheTransitClock/transitime/wiki/Multi-Agency-Configuration
+
+https://github.com/cmoscardi/bus_kalman
+
+
