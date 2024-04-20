@@ -1,0 +1,173 @@
+<html>
+<head>
+<title>Irish Rail</title>
+<link rel="stylesheet" type="text/css"  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<meta charset="UTF-8">
+<!-- include leaflet css and javascript -->
+<link rel="stylesheet" crossorigin="" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js" crossorigin=""></script>
+
+<style type="text/css">
+    #map {
+        height: 450px;
+    }
+</style>
+</head>
+<body bgcolor="white" text="black">
+
+<div style="font-size: 30; font-weight: bold; font-family: sans-serif;">
+    <p>
+        <strong><b>NiFi - Irish Rail</b></strong>
+     </p>
+</div>
+<br>
+
+<div id="map"></div>
+
+<script type="text/javascript">
+
+    const customerIcon =  L.icon({
+        iconUrl: "./images/blue-dot.png",
+        className: "image-icon",
+        iconSize: [20, 20]
+    });
+
+    const carIcon = L.icon({
+        iconUrl: "./images/car-icon-side-9.jpeg",
+        className: "image-icon",
+        iconSize: [30, 30]
+    });
+
+    var map = null;
+    var marker = null;
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4){
+            var trainlocation = JSON.parse(xhr.responseText);
+
+            let i = 0;
+            if (map == null) {
+                map = L.map('map').setView([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], 14);
+                L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                let marker = new L.marker([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], { icon: customerIcon }).addTo(map);
+            }
+
+            i++;
+            while (i < trainlocation.length) {
+                marker = new L.marker([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], { icon: customerIcon }).addTo(map).bindPopup('Info:' + trainlocation[i].StationDesc +
+                    ' ' + trainlocation[i].StationCode + 
+                     ' '+ trainlocation[i].StationId).openPopup();
+
+                i++;
+            }
+        }
+
+    };
+
+    xhr.open('GET', 'http://localhost:9871/rail2');
+    xhr.send();
+
+</script>
+<br>
+<table id="transit1" class="display" style="width:100%; text-align:left;">
+        <thead>
+            <tr>
+                       <th valign="left"><b>alias</b></th>
+                       <th valign="left"><b>Station ID</b></th>
+                       <th valign="left"><b>Station Code</b></th>
+                       <th valign="left"><b>Station Description</b></th>
+                       <th valign="left"><b>Lat/Long</b></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                       <th valign="left"><b>alias</b></th>
+                       <th valign="left"><b>Station ID</b></th>
+                       <th valign="left"><b>Station Code</b></th>
+                       <th valign="left"><b>Station Description</b></th>
+                       <th valign="left"><b>Lat/Long</b></th>
+            </tr>
+        </tfoot>
+    </table>
+<script>
+function isEmpty(val){
+    return (val === undefined || val == null || val.length <= 0) ? true : false;
+}
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+$(document).ready(function() {
+    var t = $('#transit1').DataTable();
+
+$.getJSON('http://localhost:9871/rail2irela', 
+    function(data) {
+      $.each( data, function( key, val ) {
+        var stationdesc= "";
+        if ( !isEmpty(data[key].StationDesc) ) {
+            stationdesc = data[key].StationDesc;
+        }
+        var stationcode= "";
+        if ( !isEmpty(data[key].StationCode) ) {
+            stationcode = data[key].StationCode;
+        }
+        var stationid= "";
+        if ( !isEmpty(data[key].StationId) ) {
+            stationid = data[key].StationId;
+        }
+        var alias = "";
+        if ( !isEmpty(data[key].StationAlias) ) {
+            alias = data[key].StationAlias;
+        }
+        var latitude= "";
+        if ( !isEmpty(data[key].StationLatitude) ) {
+            latitude = data[key].StationLatitude;
+        }
+        var longitude= "";
+        if ( !isEmpty(data[key].StationLongitude) ) {
+            longitude = data[key].StationLongitude;
+        }
+
+
+        t.row.add( [ alias, stationid, stationcode, stationdesc, (latitude + "," + longitude) ]).draw(true);
+      });
+    });
+}); 
+</script>
+<p>
+<br></p>
+
+<!-- Include stylesheet -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
+
+<!-- Create the editor container -->
+<div id="editor">
+  <p>Hello World!</p>
+  <p>Some initial <strong>bold</strong> text</p>
+  <p><br /></p>
+</div>
+
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+  const quill = new Quill('#editor', {
+    theme: 'snow'
+  });
+</script>
+
+<p><br></p><br>
+&copy; 2021-2022-2023-2024 Tim Spann @PaasDev - datainmotion.dev
+<br>           
+</body>
+</html>
