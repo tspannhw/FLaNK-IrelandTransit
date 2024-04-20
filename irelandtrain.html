@@ -1,0 +1,216 @@
+<html>
+<head>
+<title>Irish Rail</title>
+<link rel="stylesheet" type="text/css"  href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+<script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<meta charset="UTF-8">
+<!-- include leaflet css and javascript -->
+<link rel="stylesheet" crossorigin="" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet-src.js" crossorigin=""></script>
+
+<style type="text/css">
+    #map {
+        height: 450px;
+    }
+</style>
+</head>
+<body bgcolor="white" text="black">
+
+<div style="font-size: 30; font-weight: bold; font-family: sans-serif;">
+    <p>
+        <strong><b>NiFi - Irish Rail</b></strong>
+     </p>
+</div>
+<br>
+
+<div id="map"></div>
+
+<script type="text/javascript">
+
+    const customerIcon =  L.icon({
+        iconUrl: "./images/blue-dot.png",
+        className: "image-icon",
+        iconSize: [20, 20]
+    });
+
+    const carIcon = L.icon({
+        iconUrl: "./images/car-icon-side-9.jpeg",
+        className: "image-icon",
+        iconSize: [30, 30]
+    });
+
+    var map = null;
+    var marker = null;
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4){
+            var trainlocation = JSON.parse(xhr.responseText);
+
+            let i = 0;
+            if (map == null) {
+                map = L.map('map').setView([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], 14);
+                L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+
+                let marker = new L.marker([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], { icon: customerIcon }).addTo(map);
+            }
+
+            i++;
+            while (i < trainlocation.length) {
+                marker = new L.marker([trainlocation[i].StationLatitude, trainlocation[i].StationLongitude], { icon: customerIcon }).addTo(map).bindPopup(' ' + trainlocation[i].StationDesc +
+                    ' @ ' + trainlocation[i].LocationFullName + 
+                     ' on '+ trainlocation[i].TrainDate + ' - ' +
+                          trainlocation[i].Status + ' - Destination Time: ' +
+                          trainlocation[i].DestinationTime + ' Leaving at: ' + 
+                          trainlocation[i].ExpectedDeparture).openPopup();
+
+                i++;
+            }
+        }
+
+    };
+
+    xhr.open('GET', 'http://localhost:9871/rail');
+    xhr.send();
+
+</script>
+<br>
+<table id="transit1" class="display" style="width:100%; text-align:left;">
+        <thead>
+            <tr>
+                       <th valign="left"><b>Train Code</b></th>
+                       <th valign="left"><b>Train Date</b></th>
+                       <th valign="left"><b>Location</b></th>
+                       <th valign="left"><b>Station</b></th>
+                       <th valign="left"><b>Train Origin</b></th>
+                       <th valign="left"><b>Train Destination</b></th>
+                       <th valign="left"><b>Scheduled Departure</b></th>
+                       <th valign="left"><b>Expected Departure</b></th>
+                       <th valign="left"><b>Scheduled Arrival</b></th>
+                       <th valign="left"><b>Expected Arrival</b></th>
+                       <th valign="left"><b>Last Location</b></th>
+                       <th valign="left"><b>Lat/Long</b></th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                       <th valign="left"><b>Train Code</b></th>
+                       <th valign="left"><b>Train Date</b></th>
+                       <th valign="left"><b>Location</b></th>
+                       <th valign="left"><b>Station</b></th>
+                       <th valign="left"><b>Train Origin</b></th>
+                       <th valign="left"><b>Train Destination</b></th>
+                       <th valign="left"><b>Scheduled Departure</b></th>
+                       <th valign="left"><b>Expected Departure</b></th>
+                       <th valign="left"><b>Scheduled Arrival</b></th>
+                       <th valign="left"><b>Expected Arrival</b></th>
+                       <th valign="left"><b>Last Location</b></th>
+                       <th valign="left"><b>Lat/Long</b></th>
+            </tr>
+        </tfoot>
+    </table>
+<script>
+function isEmpty(val){
+    return (val === undefined || val == null || val.length <= 0) ? true : false;
+}
+function IsJsonString(str) {
+    try {
+        JSON.parse(str);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+$(document).ready(function() {
+    var t = $('#transit1').DataTable();
+
+$.getJSON('http://localhost:9871/rail', 
+    function(data) {
+      $.each( data, function( key, val ) {
+        var TrainCode= "";
+        if ( !isEmpty(data[key].TrainCode) ) {
+            TrainCode = data[key].TrainCode;
+        }        
+        var TrainDate= "";
+        if ( !isEmpty(data[key].TrainDate) ) {
+            TrainDate = data[key].TrainDate;
+        }
+        var LocationFullName= "";
+        if ( !isEmpty(data[key].LocationFullName) ) {
+            LocationFullName = data[key].LocationFullName;
+        }
+        var Stationfullname= "";
+        if ( !isEmpty(data[key].Stationfullname) ) {
+            Stationfullname = data[key].Stationfullname;
+        }
+        var TrainOrigin= "";
+        if ( !isEmpty(data[key].TrainOrigin) ) {
+            TrainOrigin = data[key].TrainOrigin;
+        }
+        var TrainDestination = "";
+        if ( !isEmpty(data[key].TrainDestination) ) {
+            TrainDestination = data[key].TrainDestination;
+        }
+        var ScheduledDeparture = "";
+        if ( !isEmpty(data[key].ScheduledDeparture) ) {
+            ScheduledDeparture = data[key].ScheduledDeparture;
+        }
+        var ExpectedDeparture = "";
+        if ( !isEmpty(data[key].ExpectedDeparture) ) {
+            ExpectedDeparture = data[key].ExpectedDeparture;
+        }  
+        var LastLocation = "";
+        if ( !isEmpty(data[key].LastLocation) ) {
+            LastLocation = data[key].LastLocation;
+        }                      
+        var latitude= "";
+        if ( !isEmpty(data[key].StationLatitude) ) {
+            latitude = data[key].StationLatitude;
+        }
+        var longitude= "";
+        if ( !isEmpty(data[key].StationLongitude) ) {
+            longitude = data[key].StationLongitude;
+        }
+        var ScheduledArrival= "";
+        if ( !isEmpty(data[key].ScheduledArrival) ) {
+            ScheduledArrival = data[key].ScheduledArrival;
+        }
+        var ExpectedArrival= "";
+        if ( !isEmpty(data[key].ExpectedArrival) ) {
+            ExpectedArrival = data[key].ExpectedArrival;
+        }
+
+        t.row.add( [ TrainCode,TrainDate,LocationFullName,Stationfullname,TrainOrigin,TrainDestination, ScheduledDeparture, ExpectedDeparture, ScheduledArrival, ExpectedArrival, LastLocation, (latitude + "," + longitude) ]).draw(true);
+      });
+    });
+}); 
+</script>
+<p>
+<br></p>
+
+<!-- Include stylesheet -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.snow.css" rel="stylesheet" />
+
+<!-- Create the editor container -->
+<div id="editor">
+  <p>Add some editing
+  <p><br /></p>
+</div>
+
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.0/dist/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+  const quill = new Quill('#editor', {
+    theme: 'snow'
+  });
+</script>
+
+<p><br></p><br>
+&copy; 2021-2022-2023-2024 Tim Spann @PaasDev - datainmotion.dev
+<br>           
+</body>
+</html>irelan
