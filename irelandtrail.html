@@ -11,7 +11,7 @@
 
 <style type="text/css">
     #map {
-        height: 450px;
+        height: 550px;
     }
 </style>
 </head>
@@ -131,7 +131,7 @@ $.getJSON('http://localhost:9871/irishtrainstation',
         }
         var PublicMessage= "";
         if ( !isEmpty(data[key].PublicMessage) ) {
-            PublicMessage = data[key].PublicMessage.replace(/(?:\r\n|\r|\n)/g, "<br>");
+            PublicMessage = data[key].PublicMessage.replace(/(?:\\n|\r|\n)/g, ' ');
         }
         var Direction = "";
         if ( !isEmpty(data[key].Direction) ) {
